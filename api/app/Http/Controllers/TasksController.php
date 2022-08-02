@@ -11,11 +11,15 @@ use Illuminate\Support\Facades\Validator;
 class TasksController extends Controller
 {
     public function store(Request $request) {
-        $this->validate($request, [
+        $validator = Validator::make($request->all(), [
             'title' => 'required|string|min:10|max:250',
             'description' => 'string',
             'board_id' => 'required|integer'
         ]);
+
+        if ($validator->fails()) {
+            return response(['success' => false, 'errors' => $validator->errors()], Response::HTTP_BAD_REQUEST);
+        }
 
         $taskId = Task::query()->insertGetId($request->all());
         $task = Task::query()->where('id', '=', $taskId);
@@ -44,7 +48,7 @@ class TasksController extends Controller
 
     public function done(Request $request) {
         $validator = Validator::make($request->all(), [
-            'id' => 'exists:tasks,id',
+            'id' => 'required|exists:tasks,id',
         ]);
 
         if ($validator->fails()) {
@@ -59,9 +63,13 @@ class TasksController extends Controller
     }
 
     public function moveToUrgent(Request $request) {
-        $this->validate($request, [
+        $validator = Validator::make($request->all(), [
             'id' => 'required|exists:tasks,id',
         ]);
+
+        if ($validator->fails()) {
+            return response(['success' => false, 'errors' => $validator->errors()], Response::HTTP_BAD_REQUEST);
+        }
 
         $board = Board::query()->where('name', '=', 'Urgent')->first();
 
@@ -73,10 +81,6 @@ class TasksController extends Controller
     }
 
     public function delete(Request $request) {
-//        $this->validate($request, [
-//            'id' => 'required|exists:tasks,id',
-//        ]);
-
         $validator = Validator::make($request->all(), [
             'id' => 'required|exists:tasks,id',
         ]);
