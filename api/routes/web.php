@@ -13,14 +13,4 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-use App\Http\Controllers\TasksController;
 
-Route::get('/', function () {
-    return view('welcome');
-});
-
-Route::post('/tasks', [TasksController::class, 'store']);
-Route::get('/tasks', [TasksController::class, 'index']);
-Route::delete('/tasks', [TasksController::class, 'delete']);
-Route::patch('/task/done', [TasksController::class, 'done']);
-Route::patch('/task/urgent', [TasksController::class, 'moveToUrgent']);

@@ -14,6 +14,14 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+use App\Http\Controllers\TasksController;
+
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+Route::post('/tasks', [TasksController::class, 'store']);
+Route::get('/tasks', [TasksController::class, 'index']);
+Route::delete('/tasks', [TasksController::class, 'delete']);
+Route::patch('/task/done', [TasksController::class, 'done']);
+Route::patch('/task/urgent', [TasksController::class, 'moveToUrgent']);
