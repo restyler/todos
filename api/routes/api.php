@@ -14,14 +14,17 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-use App\Http\Controllers\TasksController;
+use App\Http\Controllers\TaskController;
+use App\Http\Controllers\BoardController;
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::post('/tasks', [TasksController::class, 'store']);
-Route::get('/tasks', [TasksController::class, 'index']);
-Route::delete('/tasks', [TasksController::class, 'delete']);
-Route::patch('/task/done', [TasksController::class, 'done']);
-Route::patch('/task/urgent', [TasksController::class, 'moveToUrgent']);
+Route::post('/tasks', [TaskController::class, 'store']);
+Route::get('/tasks', [TaskController::class, 'index']);
+Route::delete('/tasks', [TaskController::class, 'delete']);
+Route::patch('/task/done', [TaskController::class, 'done']);
+Route::patch('/task/urgent', [TaskController::class, 'moveToUrgent']);
+
+Route::get('/boards', [BoardController::class, 'index']);
