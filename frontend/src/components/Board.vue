@@ -47,6 +47,11 @@ export default {
       TaskService.move(taskId, parseInt(boardId)).then((response) => {
         if (response.data.success) {
           this.getUpdatedTasks()
+
+          document.querySelectorAll(".selectBoardSelect").forEach((selectElement) => {
+            selectElement.selectedIndex = 0
+          })
+
         }
       }).catch((error) => {
         console.log(error)
@@ -112,9 +117,13 @@ export default {
                     <a @click="remove(task.id, board.id)" class="card-link">delete</a>
                   </div>
                   <div class="col-7">
-                    <select name="" id="" class="form-control col-2" @change="move(task.id, $event)">
-                      <option>Move to </option>
-                      <option v-for="(boards, index) in boards.filter((item) => item.id != board.id)" :value="boards.id">
+                    <select class="form-control col-2 selectBoardSelect"
+                            @change="move(task.id, $event)"
+                            :id="'moveSelect' + task.id + board.id">
+                      <option value="0" selected>Move to </option>
+
+                      <option v-for="(boards, index) in boards.filter((item) => item.id != board.id)"
+                              :value="boards.id">
                         {{ boards.name }}
                       </option>
                     </select>
