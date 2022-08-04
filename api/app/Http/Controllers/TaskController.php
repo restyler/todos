@@ -8,21 +8,24 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Validator;
 
-class TasksController extends Controller
+class TaskController extends Controller
 {
-    public function store(Request $request) {
+    public function store(Request $request)
+    {
         $validator = Validator::make($request->all(), [
-            'title' => 'required|string|min:10|max:250',
-            'description' => 'string',
-            'board_id' => 'required|integer'
+            'title' => 'required|string|min:1|max:250',
+            'board' => 'required|integer'
         ]);
 
         if ($validator->fails()) {
             return response(['success' => false, 'errors' => $validator->errors()], Response::HTTP_BAD_REQUEST);
         }
 
-        $taskId = Task::query()->insertGetId($request->all());
-        $task = Task::query()->where('id', '=', $taskId);
+        $taskId = Task::query()->insertGetId([
+            'title' => $request->get('title'),
+            'board_id' => $request->get('board')
+        ]);
+        $task = Task::query()->where('id', '=', $taskId)->first();
 
         if (!empty($task)) {
             return response()->json([
@@ -37,16 +40,53 @@ class TasksController extends Controller
         ], Response::HTTP_INTERNAL_SERVER_ERROR);
     }
 
-    public function index() {
-        $tasks = Task::query()->get();
+    public function index(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'id' => 'required|exists:boards,id',
+        ]);
+
+        if ($validator->fails()) {
+            return response([
+                'success' => false,
+                'errors' => $validator->errors()
+            ], Response::HTTP_BAD_REQUEST);
+        }
+
+        $tasks = Task::query()
+            ->where('board_id', '=', $request->get('id'))
+            ->get();
 
         return response()->json([
             'success' => true,
-            'date' => $tasks
+            'data' => $tasks
         ], Response::HTTP_OK);
     }
 
-    public function done(Request $request) {
+    public function all()
+    {
+        $boards = Board::query()->get()->toArray();
+
+        for ($i = 0; $i < count($boards); $i++) {
+            $tasks = Task::query()
+                ->where('board_id', '=', $boards[$i]["id"])
+                ->orderBy('status')
+                ->get()
+                ->toArray();
+
+            $boards[$i]["tasks"] = $tasks;
+            $boards[$i]["count"] = count($tasks);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $boards
+        ], Response::HTTP_OK);
+    }
+
+    public
+    function done(Request $request)
+    {
         $validator = Validator::make($request->all(), [
             'id' => 'required|exists:tasks,id',
         ]);
@@ -62,7 +102,27 @@ class TasksController extends Controller
         return response()->json(['success' => true], Response::HTTP_OK);
     }
 
-    public function moveToUrgent(Request $request) {
+    public
+    function undone(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'id' => 'required|exists:tasks,id',
+        ]);
+
+        if ($validator->fails()) {
+            return response(['success' => false, 'errors' => $validator->errors()], Response::HTTP_BAD_REQUEST);
+        }
+
+        Task::query()->where('id', '=', $request->get('id'))->update([
+            'status' => 0
+        ]);
+
+        return response()->json(['success' => true], Response::HTTP_OK);
+    }
+
+    public
+    function moveToUrgent(Request $request)
+    {
         $validator = Validator::make($request->all(), [
             'id' => 'required|exists:tasks,id',
         ]);
@@ -80,7 +140,8 @@ class TasksController extends Controller
         return response()->json(['success' => true, 'data' => $task], Response::HTTP_OK);
     }
 
-    public function delete(Request $request) {
+    public function delete(Request $request)
+    {
         $validator = Validator::make($request->all(), [
             'id' => 'required|exists:tasks,id',
         ]);
