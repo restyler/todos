@@ -90,7 +90,8 @@ export default {
             <h5 class="card-title">
               {{ board.name }}
 
-              <span class="badge rounded-pill bg-primary">
+              <span class="badge rounded-pill "
+                    :class="board.name === 'Urgent' && board.count >= 3 ? 'bg-danger' : 'bg-primary'">
                 {{ board.count }}
               </span>
             </h5>
