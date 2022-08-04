@@ -41,8 +41,10 @@ export default {
         console.log(error)
       })
     },
-    toUrgent(taskId) {
-      TaskService.moveToUrgent(taskId).then((response) => {
+    move(taskId, e) {
+      let boardId = e.target.value;
+
+      TaskService.move(taskId, parseInt(boardId)).then((response) => {
         if (response.data.success) {
           this.getUpdatedTasks()
         }
@@ -80,11 +82,11 @@ export default {
 </script>
 
 <template>
-  <div class="greetings">
+  <div class="container">
     <h1>Tasks</h1>
 
     <div class="row py-3">
-      <div v-for="(board, index) in boards" class="col-6">
+      <div v-for="(board, index) in boards" class="col-4">
         <div class="card">
           <div class="card-body">
             <h5 class="card-title">
@@ -103,11 +105,23 @@ export default {
                   {{ task.title }}
                 </p>
 
-                <a v-if="!task.status" @click="done(task.id)" class="card-link">done</a>
-                <a v-else href="#" @click="undone(task.id)" class="card-link">undone</a>
-
-                <a @click="remove(task.id, board.id)" class="card-link">delete</a>
-                <a v-show="board.name !== 'Urgent'" @click="toUrgent(task.id)" href="#" class="card-link">to urgent</a>
+                <div class="row">
+                  <div class="col-5">
+                    <a v-if="!task.status" @click="done(task.id)" class="card-link">done</a>
+                    <a v-else href="#" @click="undone(task.id)" class="card-link">undone</a>
+                    <a @click="remove(task.id, board.id)" class="card-link">delete</a>
+                  </div>
+                  <div class="col-7">
+                    <select name="" id="" class="form-control col-2" @change="move(task.id, $event)">
+                      <option>Move to </option>
+                      <option v-for="(boards, index) in boards.filter((item) => item.id != board.id)" :value="boards.id">
+                        {{ boards.name }}
+                      </option>
+                    </select>
+                  </div>
+                </div>
+                <!--a v-show="!task.status" @click="move(task.id, board.id)" href="#" class="card-link">
+                </a-->
               </div>
             </div>
 

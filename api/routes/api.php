@@ -31,6 +31,6 @@ Route::get('/tasks', [TaskController::class, 'index']);
 Route::delete('/task', [TaskController::class, 'delete']);
 Route::patch('/task/done', [TaskController::class, 'done']);
 Route::patch('/task/undone', [TaskController::class, 'undone']);
-Route::patch('/task/urgent', [TaskController::class, 'moveToUrgent']);
+Route::patch('/task/move', [TaskController::class, 'move']);
 
 Route::get('/boards', [BoardController::class, 'index']);

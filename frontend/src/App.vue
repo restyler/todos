@@ -5,9 +5,13 @@ import Board from './components/Board.vue'
 <template>
   <header>
     <div class="wrapper">
-      <Board />
+
     </div>
   </header>
+
+  <body>
+    <Board />
+  </body>
 
   <RouterView />
 </template>

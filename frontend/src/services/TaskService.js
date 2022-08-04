@@ -23,8 +23,11 @@ export default {
     setUnDone(taskId) {
         return apiClient.patch('/task/undone?id=' + taskId)
     },
-    moveToUrgent(taskId) {
-        return apiClient.patch('/task/urgent?id=' + taskId)
+    move(taskId, boardId) {
+        return apiClient.patch('/task/move', {
+            id: taskId,
+            board: boardId
+        })
     },
     remove(taskId) {
         return apiClient.delete('/task?id=' + taskId)

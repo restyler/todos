@@ -84,8 +84,7 @@ class TaskController extends Controller
         ], Response::HTTP_OK);
     }
 
-    public
-    function done(Request $request)
+    public function done(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'id' => 'required|exists:tasks,id',
@@ -102,8 +101,7 @@ class TaskController extends Controller
         return response()->json(['success' => true], Response::HTTP_OK);
     }
 
-    public
-    function undone(Request $request)
+    public function undone(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'id' => 'required|exists:tasks,id',
@@ -120,21 +118,19 @@ class TaskController extends Controller
         return response()->json(['success' => true], Response::HTTP_OK);
     }
 
-    public
-    function moveToUrgent(Request $request)
+    public function move(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'id' => 'required|exists:tasks,id',
+            'board' => 'required|exists:boards,id',
         ]);
 
         if ($validator->fails()) {
             return response(['success' => false, 'errors' => $validator->errors()], Response::HTTP_BAD_REQUEST);
         }
 
-        $board = Board::query()->where('name', '=', 'Urgent')->first();
-
         $task = Task::query()->where('id', '=', $request->get('id'))->update([
-            'board_id' => $board->id
+            'board_id' => $request->get('board')
         ]);
 
         return response()->json(['success' => true, 'data' => $task], Response::HTTP_OK);
