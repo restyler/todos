@@ -5,6 +5,12 @@ const apiClient = axios.create({
 })
 
 export default {
+    createTask(board, title) {
+        return apiClient.post('/task', {
+            title: title,
+            board: board
+        })
+    },
     getTasks(boardId) {
         return apiClient.get('/tasks?id=' + boardId)
     },

@@ -27,7 +27,7 @@ class TaskTest extends TestCase
             'board_id' => $board->id
         ];
 
-        $this->post('/tasks', $attributes);
+        $this->post('/task', $attributes);
 
         $this->assertDatabaseHas('tasks', $attributes);
     }

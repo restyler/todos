@@ -25,7 +25,7 @@ header('Access-Control-Allow-Headers: Content-Type, X-Auth-Token, Origin, Author
 //    return $request->user();
 //});
 
-Route::post('/tasks', [TaskController::class, 'store']);
+Route::post('/task', [TaskController::class, 'store']);
 Route::get('/tasks/all', [TaskController::class, 'all']);
 Route::get('/tasks', [TaskController::class, 'index']);
 Route::delete('/task', [TaskController::class, 'delete']);

@@ -1,38 +1,23 @@
 <script>
-import BoardService from "../services/BoardService";
-import Task from "./Task.vue";
 import TaskService from "../services/TaskService";
 
 export default {
   data() {
     return {
-      boards: []
+      boards: [],
+      newTask: ""
     }
   },
   mounted() {
-    BoardService.getBoards().then((boards) => {
+    TaskService.getTasksAll().then((boards) => {
       this.boards = boards.data.data
-
-      for (let i = 0; i < this.boards.length; i++) {
-        TaskService.getTasks(this.boards[i].id).then((tasks) => {
-          this.boards[i].tasks = tasks.data.data
-        })
-      }
     })
   },
   methods: {
     done(taskId) {
       TaskService.setDone(taskId).then((response) => {
         if (response.data.success) {
-          for (let i = 0; i < this.boards.length; i++) {
-            for (let j = 0; j < this.boards[i].tasks.length; j++) {
-              if (this.boards[i].tasks[j].id == taskId) {
-                this.boards[i].tasks[j].status = 1
-
-                break
-              }
-            }
-          }
+          this.getUpdatedTasks()
         }
       }).catch((error) => {
         console.log(error)
@@ -41,26 +26,16 @@ export default {
     undone(taskId) {
       TaskService.setUnDone(taskId).then((response) => {
         if (response.data.success) {
-          for (let i = 0; i < this.boards.length; i++) {
-            for (let j = 0; j < this.boards[i].tasks.length; j++) {
-              if (this.boards[i].tasks[j].id == taskId) {
-                this.boards[i].tasks[j].status = 0
-
-                break
-              }
-            }
-          }
+          this.getUpdatedTasks()
         }
       }).catch((error) => {
         console.log(error)
       })
     },
-    remove(taskId, boardId) {
+    remove(taskId) {
       TaskService.remove(taskId).then((response) => {
         if (response.data.success) {
-          TaskService.getTasksAll().then((tasks) => {
-            this.boards = tasks.data.data
-          })
+          this.getUpdatedTasks()
         }
       }).catch((error) => {
         console.log(error)
@@ -69,27 +44,56 @@ export default {
     toUrgent(taskId) {
       TaskService.moveToUrgent(taskId).then((response) => {
         if (response.data.success) {
-          TaskService.getTasksAll().then((tasks) => {
-            this.boards = tasks.data.data
-          })
+          this.getUpdatedTasks()
         }
       }).catch((error) => {
         console.log(error)
       })
     },
+    addTask(boardId) {
+      let title = this.$refs['newTask' + boardId][0].value
+
+      TaskService.createTask(boardId, title.trim()).then((response) => {
+        if (response.data.success) {
+          for (let i = 0; i < this.boards.length; i++) {
+              if (this.boards[i].id == boardId) {
+                this.boards[i].tasks.push(response.data.data)
+                this.boards[i].count += 1
+                this.$refs['newTask' + boardId][0].value = null
+
+                break
+              }
+
+          }
+        }
+      }).catch((error) => {
+        console.log(error)
+      })
+    },
+    getUpdatedTasks() {
+      TaskService.getTasksAll().then((tasks) => {
+        this.boards = tasks.data.data
+      })
+    }
   }
 }
 </script>
 
 <template>
   <div class="greetings">
-    <h1>Boards</h1>
+    <h1>Tasks</h1>
 
-    <div class="row">
+    <div class="row py-3">
       <div v-for="(board, index) in boards" class="col-6">
         <div class="card">
           <div class="card-body">
-            <h5 class="card-title">{{ board.name }}</h5>
+            <h5 class="card-title">
+              {{ board.name }}
+
+              <span class="badge rounded-pill bg-primary">
+                {{ board.count }}
+              </span>
+            </h5>
 
             <div v-for="(task, index) in board.tasks" class="card my-3">
               <div class="card-body" v-show="task">
@@ -105,6 +109,10 @@ export default {
                 <a v-show="board.name !== 'Urgent'" @click="toUrgent(task.id)" href="#" class="card-link">to urgent</a>
               </div>
             </div>
+
+            <form @submit.prevent="addTask(board.id)">
+              <input type="text" :ref="'newTask' + board.id" class="form-control" placeholder="New task">
+            </form>
           </div>
         </div>
       </div>

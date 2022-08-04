@@ -13,17 +13,19 @@ class TaskController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'title' => 'required|string|min:10|max:250',
-            'description' => 'string',
-            'board_id' => 'required|integer'
+            'title' => 'required|string|min:1|max:250',
+            'board' => 'required|integer'
         ]);
 
         if ($validator->fails()) {
             return response(['success' => false, 'errors' => $validator->errors()], Response::HTTP_BAD_REQUEST);
         }
 
-        $taskId = Task::query()->insertGetId($request->all());
-        $task = Task::query()->where('id', '=', $taskId);
+        $taskId = Task::query()->insertGetId([
+            'title' => $request->get('title'),
+            'board_id' => $request->get('board')
+        ]);
+        $task = Task::query()->where('id', '=', $taskId)->first();
 
         if (!empty($task)) {
             return response()->json([
@@ -68,10 +70,12 @@ class TaskController extends Controller
         for ($i = 0; $i < count($boards); $i++) {
             $tasks = Task::query()
                 ->where('board_id', '=', $boards[$i]["id"])
+                ->orderBy('status')
                 ->get()
                 ->toArray();
 
             $boards[$i]["tasks"] = $tasks;
+            $boards[$i]["count"] = count($tasks);
         }
 
         return response()->json([
@@ -136,8 +140,7 @@ class TaskController extends Controller
         return response()->json(['success' => true, 'data' => $task], Response::HTTP_OK);
     }
 
-    public
-    function delete(Request $request)
+    public function delete(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'id' => 'required|exists:tasks,id',
