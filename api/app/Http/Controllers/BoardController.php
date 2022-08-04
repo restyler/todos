@@ -12,7 +12,7 @@ class BoardController extends Controller
 
         return response()->json([
             'success' => true,
-            'date' => $boards
+            'data' => $boards
         ], Response::HTTP_OK);
     }
 }

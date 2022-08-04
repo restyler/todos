@@ -83,7 +83,7 @@ class TaskTest extends TestCase
             'id' => $task->id
         ];
 
-        $this->delete('/tasks', $attributes);
+        $this->delete('/task', $attributes);
 
         $this->assertDatabaseMissing('tasks', $attributes);
     }

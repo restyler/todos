@@ -19,3 +19,7 @@
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
 </IfModule>
+
+Header set Access-Control-Allow-Origin "*"
+Header set Access-Control-Allow-Headers "origin, user-token, x-requested-with, content-type"
+Header set Access-Control-Allow-Methods "POST, GET, OPTIONS, PUT, DELETE"
